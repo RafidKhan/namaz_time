@@ -23,6 +23,16 @@ class _AdressInputViewState extends State<AdressInputView> {
   TextEditingController addressController = TextEditingController();
 
   String? selectedMonthValue;
+  String? selectedYearValue;
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    addressController.text = controller.selectedCity.value ?? "";
+    selectedYearValue = controller.selectedYear.value;
+
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -70,6 +80,20 @@ class _AdressInputViewState extends State<AdressInputView> {
                 },
               );
             }),
+            DropdownButton(
+              value: selectedYearValue ?? "",
+              icon: const Icon(Icons.keyboard_arrow_down),
+              items: listYears.map((String year) {
+                return DropdownMenuItem(
+                  value: year,
+                  child: Text(year),
+                );
+              }).toList(),
+              onChanged: (newValue) {
+                selectedYearValue = newValue;
+                setState(() {});
+              },
+            ),
             const SizedBox(
               height: 10,
             ),
@@ -81,7 +105,7 @@ class _AdressInputViewState extends State<AdressInputView> {
                   country: widget.countryName,
                   countryCode: widget.countryCode,
                   city: address,
-                  // getYear: year,
+                  getYear: selectedYearValue,
                   getMonth: selectedMonthValue,
                 );
               },

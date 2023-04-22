@@ -21,6 +21,8 @@ class HomeController extends GetxController {
 
   Rxn<String> selectedAddress = Rxn<String>();
   Rxn<String> selectedMonth = Rxn<String>();
+  Rxn<String> selectedYear = Rxn<String>();
+  Rxn<String> selectedCity = Rxn<String>();
 
   @override
   void onInit() {
@@ -78,11 +80,11 @@ class HomeController extends GetxController {
           .then((List<Placemark> placeMarks) {
         if (placeMarks.isNotEmpty) {
           final Placemark place = placeMarks.first;
-          if (place.isoCountryCode != null && place.locality != null) {
+          if (place.isoCountryCode != null) {
             getNamazTime(
               country: place.country ?? "",
               countryCode: place.isoCountryCode!,
-              city: place.locality!,
+              city: place.locality ?? "",
             );
           }
         }
@@ -96,15 +98,18 @@ class HomeController extends GetxController {
   Future getNamazTime({
     required String country,
     required String countryCode,
-    required String city,
+    String? city,
     String? getYear,
     String? getMonth,
   }) async {
     loader.value = true;
     selectedAddress.value = country;
-    if (city.isNotEmpty) {
-      selectedAddress.value = "${selectedAddress.value}, $city";
+    if (city != null) {
+      if (city.isNotEmpty) {
+        selectedAddress.value = "${selectedAddress.value}, $city";
+      }
     }
+    selectedCity.value = city;
     namazTimes.clear();
     try {
       final String year = getYear ?? DateTime.now().year.toString();
@@ -113,11 +118,12 @@ class HomeController extends GetxController {
           listMonths.indexWhere((element) => element.value == month);
 
       selectedMonth.value = listMonths[selectedMonthIndex].name;
+      selectedYear.value = year;
 
       final response = await _homeRepository.getNamazTime(
         year: year,
         month: month,
-        city: city,
+        city: city ?? "",
         country: country,
       );
 
