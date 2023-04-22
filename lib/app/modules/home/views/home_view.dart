@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-
 import 'package:get/get.dart';
 import 'package:namaz_time/app/modules/home/widgets/adress_input_view.dart';
 import 'package:namaz_time/app/modules/home/widgets/country_code_picker_view.dart';

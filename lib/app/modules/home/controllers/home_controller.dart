@@ -59,7 +59,7 @@ class HomeController extends GetxController {
     final bool hasPermission = await hasMapPermission(Get.context);
     if (hasPermission) {
       getCurrentPosition();
-    }else{
+    } else {
       loader.value = false;
     }
   }
