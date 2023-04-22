@@ -17,7 +17,6 @@ class HomeRepository {
           .replaceAll('{MONTH}', month)
           .replaceAll('{CITY}', city)
           .replaceAll('{COUNTRY}', country);
-      print("URL:: $url");
       final response = await _getConnect.get(url);
 
       if (response.statusCode == 200) {

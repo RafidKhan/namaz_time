@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:namaz_time/app/models/month_model.dart';
 import 'package:namaz_time/app/modules/home/controllers/home_controller.dart';
+import 'package:namaz_time/app/utils/constants.dart';
 
 class AdressInputView extends StatefulWidget {
   final String countryCode;
@@ -19,6 +21,8 @@ class AdressInputView extends StatefulWidget {
 class _AdressInputViewState extends State<AdressInputView> {
   final HomeController controller = Get.find<HomeController>();
   TextEditingController addressController = TextEditingController();
+
+  String? selectedMonthValue;
 
   @override
   Widget build(BuildContext context) {
@@ -48,28 +52,44 @@ class _AdressInputViewState extends State<AdressInputView> {
                 setState(() {});
               },
             ),
+            Obx(() {
+              return DropdownButton(
+                value: controller.selectedMonth.value ?? "",
+                icon: const Icon(Icons.keyboard_arrow_down),
+                items: listMonths.map((MonthModel monthModel) {
+                  return DropdownMenuItem(
+                    value: monthModel.name,
+                    child: Text(monthModel.name),
+                  );
+                }).toList(),
+                onChanged: (newValue) {
+                  controller.selectedMonth.value = newValue;
+                  final selectedMonthIndex = listMonths
+                      .indexWhere((element) => element.name == newValue);
+                  selectedMonthValue = listMonths[selectedMonthIndex].value;
+                },
+              );
+            }),
             const SizedBox(
               height: 10,
             ),
             InkWell(
-              onTap: addressController.text.trim().isEmpty
-                  ? null
-                  : () {
-                      final String address = addressController.text.trim();
-                      Get.back();
-                      controller.getNamazTime(
-                        country: widget.countryName,
-                        countryCode: widget.countryCode,
-                        city: address,
-                      );
-                    },
+              onTap: () {
+                final String address = addressController.text.trim();
+                Get.back();
+                controller.getNamazTime(
+                  country: widget.countryName,
+                  countryCode: widget.countryCode,
+                  city: address,
+                  // getYear: year,
+                  getMonth: selectedMonthValue,
+                );
+              },
               child: Container(
                 padding:
                     const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                decoration: BoxDecoration(
-                  color: addressController.text.trim().isEmpty
-                      ? Colors.grey
-                      : Colors.lightBlueAccent,
+                decoration: const BoxDecoration(
+                  color: Colors.lightBlueAccent,
                 ),
                 child: const Text("Enter"),
               ),

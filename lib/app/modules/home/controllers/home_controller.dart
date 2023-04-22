@@ -1,11 +1,15 @@
 import 'package:country_calling_code_picker/country.dart';
 import 'package:country_calling_code_picker/functions.dart';
+import 'package:flutter/material.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
 import 'package:namaz_time/app/models/namaz_time_model.dart';
 import 'package:namaz_time/app/modules/home/repository/home_repository.dart';
+import 'package:namaz_time/app/modules/home/widgets/adress_input_view.dart';
+import 'package:namaz_time/app/modules/home/widgets/country_code_picker_view.dart';
 import 'package:namaz_time/app/utils/common_methods.dart';
+import 'package:namaz_time/app/utils/constants.dart';
 
 class HomeController extends GetxController {
   final HomeRepository _homeRepository = HomeRepository();
@@ -16,6 +20,7 @@ class HomeController extends GetxController {
   RxBool loader = true.obs;
 
   Rxn<String> selectedAddress = Rxn<String>();
+  Rxn<String> selectedMonth = Rxn<String>();
 
   @override
   void onInit() {
@@ -92,13 +97,23 @@ class HomeController extends GetxController {
     required String country,
     required String countryCode,
     required String city,
+    String? getYear,
+    String? getMonth,
   }) async {
     loader.value = true;
-    selectedAddress.value = "$country, $city";
+    selectedAddress.value = country;
+    if (city.isNotEmpty) {
+      selectedAddress.value = "${selectedAddress.value}, $city";
+    }
     namazTimes.clear();
     try {
-      final String year = DateTime.now().year.toString();
-      final String month = DateTime.now().month.toString();
+      final String year = getYear ?? DateTime.now().year.toString();
+      final String month = getMonth ?? DateTime.now().month.toString();
+      final selectedMonthIndex =
+          listMonths.indexWhere((element) => element.value == month);
+
+      selectedMonth.value = listMonths[selectedMonthIndex].name;
+
       final response = await _homeRepository.getNamazTime(
         year: year,
         month: month,
@@ -114,5 +129,40 @@ class HomeController extends GetxController {
       loader.value = false;
       showSnackBar('something went wrong');
     }
+  }
+
+  Future selectCountryBottomSheet() async {
+    final countryData = await showModalBottomSheet(
+      context: Get.context!,
+      barrierColor: Colors.transparent,
+      backgroundColor: Colors.grey[200],
+      builder: (builder) {
+        return CountryCodePickerView();
+      },
+    );
+    if (countryData != null) {
+      final String countryName = countryData['countryName'];
+      final String countryCode = countryData['countryCode'];
+      enterAddressBottomSheet(
+          countryName: countryName, countryCode: countryCode);
+    }
+  }
+
+  Future enterAddressBottomSheet({
+    required String countryName,
+    required String countryCode,
+  }) async {
+    showModalBottomSheet(
+      context: Get.context!,
+      isScrollControlled: true,
+      barrierColor: Colors.transparent,
+      backgroundColor: Colors.grey[200],
+      builder: (builder) {
+        return AdressInputView(
+          countryName: countryName,
+          countryCode: countryCode,
+        );
+      },
+    );
   }
 }
