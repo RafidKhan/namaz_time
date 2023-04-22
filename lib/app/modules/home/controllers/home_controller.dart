@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:country_calling_code_picker/country.dart';
 import 'package:country_calling_code_picker/functions.dart';
 import 'package:geocoding/geocoding.dart';
@@ -15,6 +13,10 @@ class HomeController extends GetxController {
   RxList<Country> listCountries = <Country>[].obs;
   RxList<NamazTimeModel> namazTimes = <NamazTimeModel>[].obs;
 
+  RxBool loader = true.obs;
+
+  Rxn<String> selectedAddress = Rxn<String>();
+
   @override
   void onInit() {
     super.onInit();
@@ -24,9 +26,6 @@ class HomeController extends GetxController {
 
   getCountryList() async {
     listCountries.value = await getCountries(Get.context!);
-    listCountries.forEach((element) {
-      log("DATA: ${element.countryCode}");
-    });
   }
 
   Future<bool> hasMapPermission(context) async {
@@ -56,9 +55,12 @@ class HomeController extends GetxController {
   }
 
   Future checkMapPermission() async {
+    loader.value = true;
     final bool hasPermission = await hasMapPermission(Get.context);
     if (hasPermission) {
       getCurrentPosition();
+    }else{
+      loader.value = false;
     }
   }
 
@@ -71,25 +73,28 @@ class HomeController extends GetxController {
           .then((List<Placemark> placeMarks) {
         if (placeMarks.isNotEmpty) {
           final Placemark place = placeMarks.first;
-          log("COUNTRY:: ${place.isoCountryCode}");
-          log("CITY:: ${place.locality}");
           if (place.isoCountryCode != null && place.locality != null) {
             getNamazTime(
-              country: place.isoCountryCode!,
+              country: place.country ?? "",
+              countryCode: place.isoCountryCode!,
               city: place.locality!,
             );
           }
         }
       });
     } catch (e) {
+      loader.value = false;
       showSnackBar('something went wrong');
     }
   }
 
   Future getNamazTime({
     required String country,
+    required String countryCode,
     required String city,
   }) async {
+    loader.value = true;
+    selectedAddress.value = "$country, $city";
     namazTimes.clear();
     try {
       final String year = DateTime.now().year.toString();
@@ -97,14 +102,16 @@ class HomeController extends GetxController {
       final response = await _homeRepository.getNamazTime(
         year: year,
         month: month,
-        city: "dhaka",
-        country: 'bd',
+        city: city,
+        country: country,
       );
 
       if (response != null) {
         namazTimes.value = response;
+        loader.value = false;
       }
     } catch (e) {
+      loader.value = false;
       showSnackBar('something went wrong');
     }
   }

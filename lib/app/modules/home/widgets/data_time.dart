@@ -34,28 +34,23 @@ class DataTile extends StatelessWidget {
           ),
           Align(
             alignment: Alignment.centerLeft,
-            child: Text(
-                "FAJR: ${convertDateTime(dateTime: namazTimeModel.timings.fajr)}"),
+            child: Text("FAJR: ${namazTimeModel.timings.fajr}"),
           ),
           Align(
             alignment: Alignment.centerLeft,
-            child: Text(
-                "DHUHR: ${convertDateTime(dateTime: namazTimeModel.timings.dhuhr)}"),
+            child: Text("DHUHR: ${namazTimeModel.timings.dhuhr}"),
           ),
           Align(
             alignment: Alignment.centerLeft,
-            child: Text(
-                "ASR: ${convertDateTime(dateTime: namazTimeModel.timings.asr)}"),
+            child: Text("ASR: ${namazTimeModel.timings.asr}"),
           ),
           Align(
             alignment: Alignment.centerLeft,
-            child: Text(
-                "MAGHRIB: ${convertDateTime(dateTime: namazTimeModel.timings.maghrib)}"),
+            child: Text("MAGHRIB: ${namazTimeModel.timings.maghrib}"),
           ),
           Align(
             alignment: Alignment.centerLeft,
-            child: Text(
-                "ISHA: ${convertDateTime(dateTime: namazTimeModel.timings.isha)}"),
+            child: Text("ISHA: ${namazTimeModel.timings.isha}"),
           ),
         ],
       ),
